@@ -52,7 +52,83 @@ catsRouter.post('/cats', (req, res) => {
       success: true,
       data: { data },
     });
-  } catch (error) {}
+  } catch (error) {
+    res.status(400).send({
+      success: false,
+      error: error.message,
+    });
+  }
+});
+
+// UPDATE 고양이 데이터 업데이트 -> PUT
+catsRouter.put('/cats/:id', (req, res) => {
+  try {
+    const params = req.params;
+    const body = req.body;
+    let result;
+    Cat.forEach((cat) => {
+      if (cat.id === params.id) {
+        result = cat = body;
+      }
+    });
+    res.status(200).send({
+      success: true,
+      data: {
+        cat: result,
+      },
+    });
+  } catch (error) {
+    res.status(400).send({
+      success: false,
+      error: error.message,
+    });
+  }
+});
+
+// UPDATE 고양이 데이터 부분적으로 업데이트 -> PATCH
+catsRouter.patch('/cats/:id', (req, res) => {
+  try {
+    const params = req.params;
+    const body = req.body;
+    let result;
+    Cat.forEach((cat) => {
+      if (cat.id === params.id) {
+        cat = { ...cat, ...body };
+        result = cat;
+      }
+    });
+    res.status(200).send({
+      success: true,
+      data: {
+        cat: result,
+      },
+    });
+  } catch (error) {
+    res.status(400).send({
+      success: false,
+      error: error.message,
+    });
+  }
+});
+
+// DELETE 고양이 데이터 업데이트 -> DELETE
+catsRouter.patch('/cats/:id', (req, res) => {
+  try {
+    const params = req.params;
+    const newCat = Cat.filter((cat) => cat.id !== params.id);
+
+    res.status(200).send({
+      success: true,
+      data: {
+        cat: newCat,
+      },
+    });
+  } catch (error) {
+    res.status(400).send({
+      success: false,
+      error: error.message,
+    });
+  }
 });
 
 export default catsRouter;
