@@ -6,27 +6,66 @@ const app: express.Express = express(); // express의 인스턴스 객체(서버
 // 미들웨어 : 양쪽을 연결해서 데이터를 주고받을 수 있도록 중간에서 매개체 역활을 하는 것
 // 모든 요청은 미들웨어를 거쳐서 온다
 app.use((req, res, next) => {
-  // 미들웨어는 .use 메서드를 사용한다.
-  // req, res, 뒤에 next라는 함수가 담기는데 다음 미들웨어 or 라우터를 실행하는 역활을 한다;
+  console.log('logging middleware');
   next();
 });
 
-// app.get -> 라우터 역활, 2번째 인자인 콜백함수에는 요청과 응답관련 매개 변수가 할당된다.
+// json 미들웨어 - express 에서 json데이터를 인식가능 하게 해줌
+app.use(express.json());
 
-app.get('/', (req: express.Request, res: express.Response) => {
-  // 웹에서 / 로 요청을 했을 때 동작을 적어주는 callback 함수
-  // 요청에 대한 응답을 client한테 보낸다
-  res.send({ cats: Cat });
+// READ 전체 고양이 데이터 조회
+app.get('/cats', (req, res) => {
+  try {
+    const cats = Cat;
+    res.status(200).send({
+      success: true,
+      data: {
+        cats,
+      },
+    });
+  } catch (error) {
+    res.status(400).send({
+      success: false,
+      error: error.message,
+    });
+  }
 });
 
-app.get('/cats/blue', (req, res) => {
-  res.send({ blue: Cat[0] });
+// READ 특정 고양이 데이터 조회
+// :id 로 하면 :뒤의 단어 자체가 parameter가 된다.
+app.get('/cats/:id', (req, res) => {
+  try {
+    const params = req.params;
+    const cat = Cat.find((cat) => {
+      return cat.id === params.id;
+    });
+    res.status(200).send({
+      success: true,
+      data: {
+        cat,
+      },
+    });
+  } catch (error) {
+    res.status(400).send({
+      success: false,
+      error: error.message,
+    });
+  }
 });
 
-app.get('/cats/som', (req, res) => {
-  res.send({ som: Cat[1] });
+// CREATE 새로운 고양이 추가
+app.post('/cats', (req, res) => {
+  try {
+    const data = req.body;
+    Cat.push(data); // create
+    res.status(200).send({
+      success: true,
+      data: { data },
+    });
+  } catch (error) {}
 });
 
+// 404 미들웨어
 app.use((req, res, next) => {
   res.send({ error: '404 not found error' });
 });
